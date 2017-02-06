@@ -77,33 +77,7 @@ FriendlyChat.prototype.loadMessages = function() {
   this.messagesRef.limitToLast(12).on('child_added', setMessage);
   this.messagesRef.limitToLast(12).on('child_changed', setMessage);
 };
-
 // Saves a new message on the Firebase DB.
-FriendlyChat.prototype.saveMessage = function(e) {
-  e.preventDefault();
-  // Check that the user entered a message and is signed in.
-  if (this.messageInput.value && this.checkSignedInWithMessage()) {
-
-    // TODO(DEVELOPER): push new message to Firebase.
-
-  }
-};
-
-// Sets the URL of the given img element with the URL of the image stored in Firebase Storage.
-FriendlyChat.prototype.setImageUrl = function(imageUri, imgElement) {
-  // If the image is a Firebase Storage URI we fetch the URL.
-  if (imageUri.startsWith('gs://')) {
-    imgElement.src = FriendlyChat.LOADING_IMAGE_URL; // Display a loading image first.
-    this.storage.refFromURL(imageUri).getMetadata().then(function(metadata) {
-      imgElement.src = metadata.downloadURLs[0];
-    });
-  } else {
-    imgElement.src = imageUri;
-  }
-};
-
-// Saves a new message containing an image URI in Firebase.
-// This first saves the image in Firebase storage.
 FriendlyChat.prototype.saveMessage = function(e) {
   e.preventDefault();
   // Check that the user entered a message and is signed in.
@@ -123,6 +97,22 @@ FriendlyChat.prototype.saveMessage = function(e) {
     });
   }
 };
+
+// Sets the URL of the given img element with the URL of the image stored in Firebase Storage.
+FriendlyChat.prototype.setImageUrl = function(imageUri, imgElement) {
+  // If the image is a Firebase Storage URI we fetch the URL.
+  if (imageUri.startsWith('gs://')) {
+    imgElement.src = FriendlyChat.LOADING_IMAGE_URL; // Display a loading image first.
+    this.storage.refFromURL(imageUri).getMetadata().then(function(metadata) {
+      imgElement.src = metadata.downloadURLs[0];
+    });
+  } else {
+    imgElement.src = imageUri;
+  }
+};
+
+// Saves a new message containing an image URI in Firebase.
+// This first saves the image in Firebase storage.
 FriendlyChat.prototype.saveImageMessage = function(event) {
 
   ...
@@ -158,7 +148,6 @@ FriendlyChat.prototype.signIn = function() {
   var provider = new firebase.auth.GoogleAuthProvider();
   this.auth.signInWithPopup(provider);
 };
-
 // Signs-out of Friendly Chat.
 FriendlyChat.prototype.signOut = function() {
   // Sign out of Firebase.
@@ -203,7 +192,6 @@ FriendlyChat.prototype.checkSignedInWithMessage = function() {
   if (this.auth.currentUser) {
     return true;
   }
-
   // Display a message to the user using a Toast.
   var data = {
     message: 'You must sign-in first',
