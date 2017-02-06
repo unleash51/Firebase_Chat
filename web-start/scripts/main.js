@@ -98,26 +98,23 @@ FriendlyChat.prototype.setImageUrl = function(imageUri, imgElement) {
 
 // Saves a new message containing an image URI in Firebase.
 // This first saves the image in Firebase storage.
-FriendlyChat.prototype.saveImageMessage = function(event) {
-  var file = event.target.files[0];
-
-  // Clear the selection in the file picker input.
-  this.imageForm.reset();
-
-  // Check if the file is an image.
-  if (!file.type.match('image.*')) {
-    var data = {
-      message: 'You can only share images',
-      timeout: 2000
-    };
-    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
-    return;
-  }
-  // Check if the user is signed-in
-  if (this.checkSignedInWithMessage()) {
-
-    // TODO(DEVELOPER): Upload image to Firebase storage and add message.
-
+FriendlyChat.prototype.saveMessage = function(e) {
+  e.preventDefault();
+  // Check that the user entered a message and is signed in.
+  if (this.messageInput.value && this.checkSignedInWithMessage()) {
+    var currentUser = this.auth.currentUser;
+    // Add a new message entry to the Firebase Database.
+    this.messagesRef.push({
+      name: currentUser.displayName,
+      text: this.messageInput.value,
+      photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
+    }).then(function() {
+      // Clear message text field and SEND button state.
+      FriendlyChat.resetMaterialTextfield(this.messageInput);
+      this.toggleButton();
+    }.bind(this)).catch(function(error) {
+      console.error('Error writing new message to Firebase Database', error);
+    });
   }
 };
 
